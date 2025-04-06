@@ -1,0 +1,36 @@
+trigger:
+- master  # Trigger pipeline on pushes to the master branch
+
+pool:
+  name: Default  
+
+variables:
+  buildConfiguration: 'Release'
+  version: '1.0.0'
+
+steps:
+# Install .NET 8 SDK
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+# Restore project dependencies
+- script: dotnet restore Lab4/Lab4.csproj
+  displayName: 'Restore dependencies'
+
+# Build the class library
+- script: dotnet build Lab4/Lab4.csproj --configuration $(buildConfiguration)
+  displayName: 'Build project'
+
+# Pack the project into a .nupkg file
+- script: dotnet pack Lab4/Lab4.csproj --configuration $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+  displayName: 'Pack NuGet Package'
+
+# Push the package to Azure Artifacts feed
+- task: NuGetCommand@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: 'jlenis/Lab4/lab4feed'  # This is your exact feed name
