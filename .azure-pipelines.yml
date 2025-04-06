@@ -33,4 +33,4 @@ steps:
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    publishVstsFeed: 'jlenis/Lab4/lab4feed'  # This is your exact feed name
+    publishVstsFeed: 'Lab4/lab4feed'  # This is your exact feed name
